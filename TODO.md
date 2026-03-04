@@ -1,139 +1,184 @@
-# OMC Slack Bidirectional Interface - TODO
+# omc-slack-mcp — TODO
+
+> Architecture: ARCHITECTURE.md (v4) — Standalone MCP Server approach
+> No OMC core modifications. No OpenClaw dependency.
+> Previous versions: ARCHITECTURE.md.v3.deprecated, ARCHITECTURE.md.deprecated, PLAN.md.deprecated
+
+---
 
 ## Slack App Dashboard Setup
 
-- [x] Socket Mode 활성화
-- [x] App-Level Token 생성 (`xapp-...`, scope: `connections:write`)
-- [x] Bot Token Scopes 설정
-  - [x] `chat:write` — 메시지 전송
-  - [x] `channels:history` — 채널 메시지 읽기
-  - [x] `reactions:write` — 이모지 반응 추가
-  - [x] `channels:manage` — 채널 자동 생성
-  - [x] `incoming-webhook` — 기존 알림 (레거시)
-- [x] Event Subscriptions 활성화
-  - [x] `message.channels` — 채널 내 스레드 reply 감지
-- [x] 앱 재설치 (Reinstall to Workspace)
-- [x] 토큰 검증 테스트
+- [x] Socket Mode enabled
+- [x] App-Level Token created (`xapp-...`, scope: `connections:write`)
+- [x] Bot Token Scopes configured
+  - [x] `chat:write`
+  - [x] `channels:history`
+  - [x] `reactions:write`
+  - [x] `channels:manage`
+  - [x] `incoming-webhook` (legacy)
+- [x] Event Subscriptions enabled
+  - [x] `message.channels`
+- [x] App reinstalled to workspace
+- [x] Token verification tests passed
   - [x] `auth.test` — Bot User ID: `U0AHJ1FMX3M`
-  - [x] `conversations.create` — 채널 자동 생성 확인
-  - [x] `chat.postMessage` — 메시지 전송 + `ts` 반환 확인
-- [ ] Bot User ID 확인 (본인 Slack User ID, 프로필 > More > Copy member ID)
-
-## Architecture Review
-
-- [x] ARCHITECTURE.md 초안 작성
-- [x] Architect 검토 — 5개 gap 발견
-- [x] Gap 1 해소: `"slack-bot"` 타입 시스템 통합 (섹션 2 추가)
-- [x] Gap 2 해소: `getReplyConfig()` Slack 인식 (섹션 3 보완)
-- [x] Gap 3 해소: `findActiveSession()` 정의 (섹션 7 추가)
-- [x] Gap 4 해소: 별도 데몬 → 통합 데몬 결정 (섹션 6, 8 재작성)
-- [x] Gap 5 해소: 테스트 전략 강화 (Unit/Integration/E2E 3단계)
-- [x] 보안 모델 강화 (subtype 필터링, self-ID 확인, 채널 스코프)
-- [x] Risk Assessment 보완 (event loss, zombie WS, high event volume)
-- [x] 채널 라우팅 기능 추가 (channelRouting, resolveChannel)
-- [x] 채널 자동 생성 기능 추가 (autoCreateChannels, resolveOrCreateChannel)
-- [x] Phase별 dependency 정리 (@slack/web-api → @slack/bolt)
-- [x] .gitignore 생성
+  - [x] `conversations.create`
+  - [x] `chat.postMessage` — `ts` return confirmed
+- [ ] Add `channels:read` scope (for `slack_list_channels`)
+- [ ] Add `users:read` scope (for user resolution)
+- [ ] Get your own Slack User ID (Profile > More > Copy member ID)
 
 ---
 
-## Phase 1: Outbound via Bot API
+## Phase 1: Outbound (MCP Tools)
 
-> **Goal:** Bot API로 알림 전송, `ts` 캡처로 스레드 추적 가능하게
+> **Goal:** Claude can post messages to Slack via MCP tools
+> **Approach:** Standalone MCP server with @slack/web-api
 
-### Files to modify (OMC codebase)
-- [ ] `src/notifications/types.ts` — `"slack-bot"` to `NotificationPlatform` union
-- [ ] `src/notifications/config.ts`
-  - [ ] `SlackBotNotificationConfig` interface 추가
-  - [ ] `ChannelRoute` interface 추가
-  - [ ] Token format validation (`xoxb-*`, `xapp-*`)
-  - [ ] `getReplyConfig()` 확장 (slack-bot 인식)
-  - [ ] 환경변수 파싱 (OMC_SLACK_BOT_TOKEN, OMC_SLACK_CHANNEL_ROUTING 등)
-- [ ] `src/notifications/dispatcher.ts`
-  - [ ] `sendSlackBot()` 함수 구현
-  - [ ] `resolveOrCreateChannel()` 구현
-  - [ ] `deriveChannelName()` 구현
-  - [ ] `findChannelByName()` 구현
-  - [ ] `dispatchNotifications()`에 `slack-bot` 분기 추가
-- [ ] `src/notifications/index.ts` — 메시지 ID 등록 조건에 `"slack-bot"` 추가
+### Step 1: Project Init ✅
+- [x] `package.json`: name `omc-slack-mcp`, `type: "module"`, `bin`
+- [x] Dependencies: `@modelcontextprotocol/sdk`, `@slack/web-api`, `zod`
+- [x] Dev dependencies: `typescript`, `vitest`, `tsx`, `@types/node`
+- [x] `tsconfig.json`: strict, ESM, `outDir: "dist"`
+- [x] `.gitignore`: node_modules, dist, .env
+- [x] `.env.example`: documented env vars
 
-### New dependency
-- [ ] `@slack/web-api` 설치
+### Step 2: Config (`src/config.ts`)
+- [ ] Parse env vars: `SLACK_BOT_TOKEN`, `SLACK_DEFAULT_CHANNEL_ID`, `SLACK_MENTION`
+- [ ] Validate bot token format (`xoxb-*`)
+- [ ] Optional: `SLACK_ASK_TIMEOUT`, `SLACK_REGISTRY_PATH`
+- [ ] Export typed config object
 
-### Tests
-- [ ] `sendSlackBot()` unit test — payload 형식, ts 추출
-- [ ] `SlackBotConfig` validation test — config 파싱, 토큰 검증
-- [ ] Channel routing test — pathPattern 매칭, fallback, auto-create
-- [ ] Session registry with slack-bot — composite key 등록/조회
+### Step 3: Slack Client (`src/slack/client.ts`)
+- [ ] `initClient(botToken)` → WebClient singleton
+- [ ] `auth.test()` call to validate token and resolve bot user ID
+- [ ] Export `getClient()`, `getBotUserId()`
 
-### Verification
-- [ ] 실제 Slack 채널에 알림 전송 확인
-- [ ] `ts` 값이 세션 레지스트리에 등록되는지 확인
-- [ ] 채널 라우팅 동작 확인
+### Step 4: MCP Server Scaffold (`src/index.ts`)
+- [ ] Create McpServer instance (name: `omc-slack-mcp`)
+- [ ] STDIO transport setup
+- [ ] Load config, init Slack client on startup
+- [ ] Register all tools
+- [ ] Error handling (stderr logging, never stdout)
+
+### Step 5: Messaging Tools (`src/tools/messaging.ts`)
+- [ ] `slack_post_message(channel_id, text)` → `{ ok, ts, channel }`
+- [ ] `slack_reply_to_thread(channel_id, thread_ts, text)` → `{ ok, ts }`
+- [ ] `slack_add_reaction(channel_id, timestamp, reaction)` → `{ ok }`
+
+### Step 6: Channel/Read Tools (`src/tools/channels.ts`)
+- [ ] `slack_list_channels(limit?, cursor?)` → channels list
+- [ ] `slack_get_channel_history(channel_id, limit?)` → messages list
+- [ ] `slack_get_thread_replies(channel_id, thread_ts, limit?)` → replies list
+
+### Step 7: Ask Tools (`src/tools/ask.ts`)
+- [ ] `slack_ask(channel_id, question, mention?, timeout_seconds?)` → `{ answered, reply_text, ... }`
+  - [ ] Post message with optional @mention
+  - [ ] Poll `conversations.replies` every 3 seconds
+  - [ ] Filter: skip bot messages, require authorized user
+  - [ ] Return first reply or timeout
+- [ ] `slack_check_reply(channel_id, thread_ts, after_ts?)` → `{ has_reply, replies }`
+
+### Step 8: Session Registry (`src/session/registry.ts`)
+- [ ] `SessionEntry` interface: messageId, channelId, threadTs, tmuxPaneId, sessionId, projectPath, createdAt
+- [ ] In-memory Map (primary store) + JSONL persistence
+- [ ] `register(entry)` → append to JSONL + update Map
+- [ ] `lookup(channelId, threadTs)` → O(1) Map lookup
+- [ ] `prune(ttlMs)` → remove entries older than TTL (default 24h)
+- [ ] Load JSONL into Map on startup
+
+### Step 9: Session Tools (`src/session/tools.ts`)
+- [ ] `slack_register_session(channel_id, thread_ts, tmux_pane_id, session_id?, project_path?)` → `{ ok, message_id }`
+- [ ] `slack_get_session(channel_id, thread_ts)` → `{ found, tmux_pane_id, ... }`
+
+### Step 10: Tests
+- [ ] `messaging.test.ts` — mock WebClient, post/reply/reaction, error paths
+- [ ] `channels.test.ts` — list channels, get history, get thread replies
+- [ ] `ask.test.ts` — post + poll cycle, timeout, authorized user filter
+- [ ] `registry.test.ts` — register, lookup, prune, JSONL persistence
+- [ ] `config.test.ts` — env parsing, token validation, defaults
+
+### Step 11: MCP Registration
+- [ ] Create `.mcp.json` example for Claude Code
+- [ ] Document setup in README
+
+### Step 12: Verification (Manual)
+- [ ] MCP server starts via Claude Code
+- [ ] `slack_post_message` sends message to Slack
+- [ ] `slack_ask` posts question, receives reply
+- [ ] `slack_register_session` stores mapping
+- [ ] `slack_get_session` retrieves mapping
+- [ ] `slack_list_channels` returns workspace channels
 
 ---
 
-## Phase 2: Inbound via Socket Mode (Thread Replies)
+## Phase 2: Inbound (Socket Mode Listener)
 
-> **Goal:** 스레드 reply를 받아 Claude Code 세션에 주입
+> **Goal:** Slack thread replies auto-injected into Claude Code tmux sessions
+> **Approach:** @slack/bolt Socket Mode running as background process in MCP server
 
-### Files to modify
-- [ ] `src/notifications/reply-listener.ts`
-  - [ ] `initSlackListener()` 함수 추가 (Bolt App 통합)
-  - [ ] Thread reply 핸들러 구현
-  - [ ] `message.subtype` 필터링
-  - [ ] Bot self-ID 확인 (`auth.test`)
-  - [ ] `shutdown()` 함수에 Bolt 정리 추가
-- [ ] `src/notifications/session-registry.ts` — `"slack-bot"` platform 지원
-- [ ] `src/notifications/config.ts`
-  - [ ] `authorizedSlackUserIds` to `ReplyConfig`
-  - [ ] `getReplyConfig()` slack-bot 인식
+### Step 13: Dependencies
+- [ ] Add `@slack/bolt` to `package.json`
 
-### New dependency
-- [ ] `@slack/bolt` (replaces `@slack/web-api`)
+### Step 14: Reply Injector (`src/listener/injector.ts`)
+- [ ] `sanitizeInput(text)` — strip control chars, escape shell metacharacters
+- [ ] `injectReply(paneId, text)` — `tmux send-keys` with sanitized input
+- [ ] `verifyPane(paneId)` — check tmux pane exists
+- [ ] Rate limiter (max 10 injections/minute)
 
-### Tests
-- [ ] Thread reply handler integration test
-- [ ] `getReplyConfig()` with Slack-only config test
-- [ ] Concurrent registry access test
-- [ ] Full injection pipeline E2E test
-- [ ] Bolt initialization failure fallback test
+### Step 15: Socket Mode Listener (`src/listener/socket-mode.ts`)
+- [ ] `initSocketMode(config, registry)` → start Bolt App
+- [ ] Bolt App creation with Socket Mode (`appToken`)
+- [ ] `auth.test` for bot user ID resolution (self-loop prevention)
+- [ ] Message handler with 4-layer filtering:
+  - [ ] Subtype filter (plain messages only)
+  - [ ] Thread reply filter (`thread_ts` exists, `thread_ts !== ts`)
+  - [ ] Self-loop filter (`user !== botUserId`)
+  - [ ] Authorization filter (`user in authorizedUserIds`)
+- [ ] Session registry lookup → tmux pane ID
+- [ ] `injectReply()` call
+- [ ] `reactions.add("white_check_mark")` confirmation
+- [ ] Error isolation (try/catch, no process.exit)
 
-### Verification
-- [ ] Slack 스레드에서 reply → Claude Code 세션에 텍스트 주입 확인
-- [ ] 체크마크 반응 추가 확인
-- [ ] Discord/Telegram 폴링이 영향받지 않는지 확인
+### Step 16: Integration (`src/index.ts`)
+- [ ] Start Socket Mode listener on MCP server init (after client validation)
+- [ ] Graceful shutdown on SIGTERM (`app.stop()`)
+- [ ] Fallback: MCP tools still work if Socket Mode fails to start
+
+### Step 17: Tests
+- [ ] `injector.test.ts` — sanitization, shell escaping, pane verification
+- [ ] `socket-mode.test.ts` — 4-layer filtering, registry lookup, injection, error isolation
+- [ ] Bot self-loop prevention test
+- [ ] Socket Mode failure does not crash MCP server
+
+### Step 18: Verification (Manual)
+- [ ] Slack thread reply → text injected into Claude Code tmux session
+- [ ] Checkmark reaction added on successful injection
+- [ ] Socket Mode disconnect → auto-reconnect → events resume
+- [ ] MCP tools still work when Socket Mode is down
 
 ---
 
-## Phase 3: DM & Mention Interface (Future)
+## Phase 3: DM & @Mention (Future)
 
-> **Goal:** DM 또는 @mention으로 독립적 명령 전송
+> **Goal:** Send commands via DM or @mention without thread context
 
-### Prerequisites
-- [ ] `findActiveSession()` 구현
-- [ ] `SessionMapping`에 `userId` 필드 추가
-- [ ] `registerMessage()`에 userId 포함
-
-### Slack Dashboard 추가 설정
-- [ ] `im:history` scope 추가
-- [ ] `im:read` scope 추가
-- [ ] `app_mentions:read` scope 추가
-- [ ] `message.im` event 추가
-- [ ] `app_mention` event 추가
-- [ ] 앱 재설치
+### Slack Dashboard
+- [ ] Add `im:history`, `im:read`, `app_mentions:read` scopes
+- [ ] Add `message.im`, `app_mention` events
+- [ ] Reinstall app
 
 ### Implementation
-- [ ] DM 핸들러 구현
-- [ ] @mention 핸들러 구현
-- [ ] `findActiveSession()` 구현 + 테스트
+- [ ] DM handler in Bolt App
+- [ ] @mention handler in Bolt App
+- [ ] `findActiveSession()` for session lookup without thread context
+- [ ] Tests
 
 ---
 
-## Phase 4: Response Capture & Streaming (Future)
+## Phase 4: Response Capture (Future)
 
-> **Goal:** Claude 응답을 Slack 스레드에 포스팅
+> **Goal:** Post Claude's response back to Slack thread
 
-- [ ] tmux pane output 모니터링 설계
-- [ ] 응답 파싱 + 포맷팅
-- [ ] Slack 스레드에 응답 포스팅
+- [ ] tmux pane output monitoring design
+- [ ] Response parsing + formatting
+- [ ] Post to Slack thread via `slack_reply_to_thread` with `thread_ts`
