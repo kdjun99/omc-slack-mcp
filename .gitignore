@@ -1,0 +1,25 @@
+# Environment variables (secrets)
+.env
+.env.local
+.env.*.local
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# OS
+.DS_Store
+
+# OMC state
+.omc/
+
+# Editor
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# Test coverage
+coverage/
