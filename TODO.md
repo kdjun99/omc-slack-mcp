@@ -96,17 +96,18 @@
 - [x] `registry.test.ts` — register, lookup, prune, JSONL persistence
 - [x] `config.test.ts` — env parsing, token validation, defaults
 
-### Step 11: MCP Registration
-- [ ] Create `.mcp.json` example for Claude Code
-- [ ] Document setup in README
+### Step 11: MCP Registration ✅
+- [x] Create `.mcp.json` example for Claude Code
+- [x] Document setup in README
 
-### Step 12: Verification (Manual)
-- [ ] MCP server starts via Claude Code
-- [ ] `slack_post_message` sends message to Slack
-- [ ] `slack_ask` posts question, receives reply
-- [ ] `slack_register_session` stores mapping
-- [ ] `slack_get_session` retrieves mapping
-- [ ] `slack_list_channels` returns workspace channels
+### Step 12: Verification (Manual) ✅
+- [x] MCP server starts via Claude Code
+- [x] `slack_post_message` sends message to Slack
+- [x] `slack_reply_to_thread` replies to thread
+- [x] `slack_add_reaction` adds emoji reaction
+- [x] `slack_get_channel_history` reads channel messages
+- [x] `slack_get_thread_replies` reads thread replies
+- [x] `slack_list_channels` returns workspace channels
 
 ---
 
