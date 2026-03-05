@@ -42,53 +42,53 @@
 - [x] `.gitignore`: node_modules, dist, .env
 - [x] `.env.example`: documented env vars
 
-### Step 2: Config (`src/config.ts`)
-- [ ] Parse env vars: `SLACK_BOT_TOKEN`, `SLACK_DEFAULT_CHANNEL_ID`, `SLACK_MENTION`
-- [ ] Validate bot token format (`xoxb-*`)
-- [ ] Optional: `SLACK_ASK_TIMEOUT`, `SLACK_REGISTRY_PATH`
-- [ ] Export typed config object
+### Step 2: Config (`src/config.ts`) ✅
+- [x] Parse env vars: `SLACK_BOT_TOKEN`, `SLACK_DEFAULT_CHANNEL_ID`, `SLACK_MENTION`
+- [x] Validate bot token format (`xoxb-*`)
+- [x] Optional: `SLACK_ASK_TIMEOUT`, `SLACK_REGISTRY_PATH`
+- [x] Export typed config object
 
-### Step 3: Slack Client (`src/slack/client.ts`)
-- [ ] `initClient(botToken)` → WebClient singleton
-- [ ] `auth.test()` call to validate token and resolve bot user ID
-- [ ] Export `getClient()`, `getBotUserId()`
+### Step 3: Slack Client (`src/slack/client.ts`) ✅
+- [x] `initClient(botToken)` → WebClient singleton
+- [x] `auth.test()` call to validate token and resolve bot user ID
+- [x] Export `getClient()`, `getBotUserId()`
 
-### Step 4: MCP Server Scaffold (`src/index.ts`)
-- [ ] Create McpServer instance (name: `omc-slack-mcp`)
-- [ ] STDIO transport setup
-- [ ] Load config, init Slack client on startup
-- [ ] Register all tools
-- [ ] Error handling (stderr logging, never stdout)
+### Step 4: MCP Server Scaffold (`src/index.ts`) ✅
+- [x] Create McpServer instance (name: `omc-slack-mcp`)
+- [x] STDIO transport setup
+- [x] Load config, init Slack client on startup
+- [x] Register all tools
+- [x] Error handling (stderr logging, never stdout)
 
-### Step 5: Messaging Tools (`src/tools/messaging.ts`)
-- [ ] `slack_post_message(channel_id, text)` → `{ ok, ts, channel }`
-- [ ] `slack_reply_to_thread(channel_id, thread_ts, text)` → `{ ok, ts }`
-- [ ] `slack_add_reaction(channel_id, timestamp, reaction)` → `{ ok }`
+### Step 5: Messaging Tools (`src/tools/messaging.ts`) ✅
+- [x] `slack_post_message(channel_id, text)` → `{ ok, ts, channel }`
+- [x] `slack_reply_to_thread(channel_id, thread_ts, text)` → `{ ok, ts }`
+- [x] `slack_add_reaction(channel_id, timestamp, reaction)` → `{ ok }`
 
-### Step 6: Channel/Read Tools (`src/tools/channels.ts`)
-- [ ] `slack_list_channels(limit?, cursor?)` → channels list
-- [ ] `slack_get_channel_history(channel_id, limit?)` → messages list
-- [ ] `slack_get_thread_replies(channel_id, thread_ts, limit?)` → replies list
+### Step 6: Channel/Read Tools (`src/tools/channels.ts`) ✅
+- [x] `slack_list_channels(limit?, cursor?)` → channels list
+- [x] `slack_get_channel_history(channel_id, limit?)` → messages list
+- [x] `slack_get_thread_replies(channel_id, thread_ts, limit?)` → replies list
 
-### Step 7: Ask Tools (`src/tools/ask.ts`)
-- [ ] `slack_ask(channel_id, question, mention?, timeout_seconds?)` → `{ answered, reply_text, ... }`
-  - [ ] Post message with optional @mention
-  - [ ] Poll `conversations.replies` every 3 seconds
-  - [ ] Filter: skip bot messages, require authorized user
-  - [ ] Return first reply or timeout
-- [ ] `slack_check_reply(channel_id, thread_ts, after_ts?)` → `{ has_reply, replies }`
+### Step 7: Ask Tools (`src/tools/ask.ts`) ✅
+- [x] `slack_ask(channel_id, question, mention?, timeout_seconds?)` → `{ answered, reply_text, ... }`
+  - [x] Post message with optional @mention
+  - [x] Poll `conversations.replies` every 3 seconds
+  - [x] Filter: skip bot messages, require authorized user
+  - [x] Return first reply or timeout
+- [x] `slack_check_reply(channel_id, thread_ts, after_ts?)` → `{ has_reply, replies }`
 
-### Step 8: Session Registry (`src/session/registry.ts`)
-- [ ] `SessionEntry` interface: messageId, channelId, threadTs, tmuxPaneId, sessionId, projectPath, createdAt
-- [ ] In-memory Map (primary store) + JSONL persistence
-- [ ] `register(entry)` → append to JSONL + update Map
-- [ ] `lookup(channelId, threadTs)` → O(1) Map lookup
-- [ ] `prune(ttlMs)` → remove entries older than TTL (default 24h)
-- [ ] Load JSONL into Map on startup
+### Step 8: Session Registry (`src/session/registry.ts`) ✅
+- [x] `SessionEntry` interface: messageId, channelId, threadTs, tmuxPaneId, sessionId, projectPath, createdAt
+- [x] In-memory Map (primary store) + JSONL persistence
+- [x] `register(entry)` → append to JSONL + update Map
+- [x] `lookup(channelId, threadTs)` → O(1) Map lookup
+- [x] `prune(ttlMs)` → remove entries older than TTL (default 24h)
+- [x] Load JSONL into Map on startup
 
-### Step 9: Session Tools (`src/session/tools.ts`)
-- [ ] `slack_register_session(channel_id, thread_ts, tmux_pane_id, session_id?, project_path?)` → `{ ok, message_id }`
-- [ ] `slack_get_session(channel_id, thread_ts)` → `{ found, tmux_pane_id, ... }`
+### Step 9: Session Tools (`src/session/tools.ts`) ✅
+- [x] `slack_register_session(channel_id, thread_ts, tmux_pane_id, session_id?, project_path?)` → `{ ok, message_id }`
+- [x] `slack_get_session(channel_id, thread_ts)` → `{ found, tmux_pane_id, ... }`
 
 ### Step 10: Tests
 - [ ] `messaging.test.ts` — mock WebClient, post/reply/reaction, error paths
