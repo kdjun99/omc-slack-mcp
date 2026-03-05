@@ -23,8 +23,8 @@
   - [x] `conversations.create`
   - [x] `chat.postMessage` — `ts` return confirmed
 - [x] Tokens configured in `.env.local` (bot token + app token + channel ID + user ID)
-- [ ] Add `channels:read` scope (for `slack_list_channels`)
-- [ ] Add `users:read` scope (for user resolution)
+- [x] Add `channels:read` scope (for `slack_list_channels`)
+- [x] Add `users:read` scope (for user resolution)
 
 ---
 
@@ -89,12 +89,12 @@
 - [x] `slack_register_session(channel_id, thread_ts, tmux_pane_id, session_id?, project_path?)` → `{ ok, message_id }`
 - [x] `slack_get_session(channel_id, thread_ts)` → `{ found, tmux_pane_id, ... }`
 
-### Step 10: Tests
-- [ ] `messaging.test.ts` — mock WebClient, post/reply/reaction, error paths
-- [ ] `channels.test.ts` — list channels, get history, get thread replies
-- [ ] `ask.test.ts` — post + poll cycle, timeout, authorized user filter
-- [ ] `registry.test.ts` — register, lookup, prune, JSONL persistence
-- [ ] `config.test.ts` — env parsing, token validation, defaults
+### Step 10: Tests ✅
+- [x] `messaging.test.ts` — mock WebClient, post/reply/reaction, error paths
+- [x] `channels.test.ts` — list channels, get history, get thread replies
+- [x] `ask.test.ts` — post + poll cycle, timeout, authorized user filter
+- [x] `registry.test.ts` — register, lookup, prune, JSONL persistence
+- [x] `config.test.ts` — env parsing, token validation, defaults
 
 ### Step 11: MCP Registration
 - [ ] Create `.mcp.json` example for Claude Code

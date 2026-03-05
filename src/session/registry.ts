@@ -109,3 +109,11 @@ export function prune(ttlMs: number = 24 * 60 * 60 * 1000): number {
 export function size(): number {
   return registry.size;
 }
+
+/**
+ * Clear all entries (for testing).
+ */
+export function clearRegistry(): void {
+  registry.clear();
+  registryPath = null;
+}
