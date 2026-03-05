@@ -2,7 +2,6 @@
 
 > Architecture: ARCHITECTURE.md (v4) — Standalone MCP Server approach
 > No OMC core modifications. No OpenClaw dependency.
-> Previous versions: ARCHITECTURE.md.v3.deprecated, ARCHITECTURE.md.deprecated, PLAN.md.deprecated
 
 ---
 
@@ -23,9 +22,9 @@
   - [x] `auth.test` — Bot User ID: `U0AHJ1FMX3M`
   - [x] `conversations.create`
   - [x] `chat.postMessage` — `ts` return confirmed
+- [x] Tokens configured in `.env.local` (bot token + app token + channel ID + user ID)
 - [ ] Add `channels:read` scope (for `slack_list_channels`)
 - [ ] Add `users:read` scope (for user resolution)
-- [ ] Get your own Slack User ID (Profile > More > Copy member ID)
 
 ---
 
