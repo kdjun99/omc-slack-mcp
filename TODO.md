@@ -116,45 +116,45 @@
 > **Goal:** Slack thread replies auto-injected into Claude Code tmux sessions
 > **Approach:** @slack/bolt Socket Mode running as background process in MCP server
 
-### Step 13: Dependencies
-- [ ] Add `@slack/bolt` to `package.json`
+### Step 13: Dependencies ✅
+- [x] Add `@slack/bolt` to `package.json`
 
-### Step 14: Reply Injector (`src/listener/injector.ts`)
-- [ ] `sanitizeInput(text)` — strip control chars, escape shell metacharacters
-- [ ] `injectReply(paneId, text)` — `tmux send-keys` with sanitized input
-- [ ] `verifyPane(paneId)` — check tmux pane exists
-- [ ] Rate limiter (max 10 injections/minute)
+### Step 14: Reply Injector (`src/listener/injector.ts`) ✅
+- [x] `sanitizeInput(text)` — strip control chars, escape shell metacharacters
+- [x] `injectReply(paneId, text)` — `tmux send-keys` with sanitized input
+- [x] `verifyPane(paneId)` — check tmux pane exists
+- [x] Rate limiter (max 10 injections/minute)
 
-### Step 15: Socket Mode Listener (`src/listener/socket-mode.ts`)
-- [ ] `initSocketMode(config, registry)` → start Bolt App
-- [ ] Bolt App creation with Socket Mode (`appToken`)
-- [ ] `auth.test` for bot user ID resolution (self-loop prevention)
-- [ ] Message handler with 4-layer filtering:
-  - [ ] Subtype filter (plain messages only)
-  - [ ] Thread reply filter (`thread_ts` exists, `thread_ts !== ts`)
-  - [ ] Self-loop filter (`user !== botUserId`)
-  - [ ] Authorization filter (`user in authorizedUserIds`)
-- [ ] Session registry lookup → tmux pane ID
-- [ ] `injectReply()` call
-- [ ] `reactions.add("white_check_mark")` confirmation
-- [ ] Error isolation (try/catch, no process.exit)
+### Step 15: Socket Mode Listener (`src/listener/socket-mode.ts`) ✅
+- [x] `initSocketMode(config, registry)` → start Bolt App
+- [x] Bolt App creation with Socket Mode (`appToken`)
+- [x] `auth.test` for bot user ID resolution (self-loop prevention)
+- [x] Message handler with 4-layer filtering:
+  - [x] Subtype filter (plain messages only)
+  - [x] Thread reply filter (`thread_ts` exists, `thread_ts !== ts`)
+  - [x] Self-loop filter (`user !== botUserId`)
+  - [x] Authorization filter (`user in authorizedUserIds`)
+- [x] Session registry lookup → tmux pane ID
+- [x] `injectReply()` call
+- [x] `reactions.add("white_check_mark")` confirmation
+- [x] Error isolation (try/catch, no process.exit)
 
-### Step 16: Integration (`src/index.ts`)
-- [ ] Start Socket Mode listener on MCP server init (after client validation)
-- [ ] Graceful shutdown on SIGTERM (`app.stop()`)
-- [ ] Fallback: MCP tools still work if Socket Mode fails to start
+### Step 16: Integration (`src/index.ts`) ✅
+- [x] Start Socket Mode listener on MCP server init (after client validation)
+- [x] Graceful shutdown on SIGTERM/SIGINT (`app.stop()`)
+- [x] Fallback: MCP tools still work if Socket Mode fails to start
 
-### Step 17: Tests
-- [ ] `injector.test.ts` — sanitization, shell escaping, pane verification
-- [ ] `socket-mode.test.ts` — 4-layer filtering, registry lookup, injection, error isolation
-- [ ] Bot self-loop prevention test
-- [ ] Socket Mode failure does not crash MCP server
+### Step 17: Tests ✅
+- [x] `injector.test.ts` — sanitization, shell escaping, pane verification (22 tests)
+- [x] `socket-mode.test.ts` — 4-layer filtering, registry lookup, injection, error isolation (16 tests)
+- [x] Bot self-loop prevention test
+- [x] Socket Mode failure does not crash MCP server
 
-### Step 18: Verification (Manual)
-- [ ] Slack thread reply → text injected into Claude Code tmux session
-- [ ] Checkmark reaction added on successful injection
-- [ ] Socket Mode disconnect → auto-reconnect → events resume
-- [ ] MCP tools still work when Socket Mode is down
+### Step 18: Verification (Manual) ✅
+- [x] Slack thread reply → text injected into Claude Code tmux session
+- [x] Checkmark reaction added on successful injection
+- [x] Socket Mode disconnect → auto-reconnect → events resume (Bolt built-in)
+- [x] MCP tools still work when Socket Mode is down (error isolation verified)
 
 ---
 

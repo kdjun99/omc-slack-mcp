@@ -7,7 +7,7 @@ import { WebClient } from "@slack/web-api";
 let client: WebClient | null = null;
 let botUserId: string | null = null;
 
-export async function initClient(botToken: string): Promise<void> {
+export async function initClient(botToken: string): Promise<string> {
   client = new WebClient(botToken);
 
   // Validate token and resolve bot user ID
@@ -18,6 +18,7 @@ export async function initClient(botToken: string): Promise<void> {
 
   botUserId = authResult.user_id ?? null;
   console.error(`[omc-slack-mcp] Authenticated as bot user: ${botUserId}`);
+  return botUserId ?? "";
 }
 
 export function getClient(): WebClient {
